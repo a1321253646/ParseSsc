@@ -1,0 +1,7 @@
+jackzheng.study.com.wechat.WechatApi 为单例
+	该类中的有两个方法需要你留意
+	receviceMessage 为接收到微信信息后的处理函数
+	sendMessage 为发送信息的函数，需要你来实现
+	
+jackzheng.study.com.wechat.utils
+		这个包中是为了修改最小，所以里面的类的命名都是和Android的一样，其中有多个log的打印，你可以最终调用同一个log保存的实现类

@@ -34,7 +34,9 @@ public class WechatApi {
 	private ThreadPoolExecutor mExecutor;
     HtmlParse.MaxIndexResult mCurrentResult;
     int mIndexMax = 0;
+    private final int WECHAT_TEXT_MSG_TYPE = 1;
 	//接手信息的处理
+    //目前type == 1 为文本信息，在web 中微信的文本信息对应的type你对应看一下是什么，要对应改一下WECHAT_TEXT_MSG_TYPE
 	public void receviceMessage(final String message,final String userId,final int type ) {
 		mExecutor.execute(new Runnable() {
 	        @Override
@@ -52,7 +54,7 @@ public class WechatApi {
                     content = content.replace(userId+":\n","");
                 }
                 XposedBridge.log("GroupID = "+GroupID+" userId = "+userId+" content = "+content+" type ="+type);
-                if(type == 1 && !TextUtils.isEmpty(userId)){
+                if(type == WECHAT_TEXT_MSG_TYPE && !TextUtils.isEmpty(userId)){
                     getMessage(userId,GroupID,content);
                 }
 	        	
