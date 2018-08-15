@@ -4,9 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;  
 import java.io.InputStream;  
 import java.io.InputStreamReader;  
-import java.io.OutputStream;  
-import java.net.InetSocketAddress;  
-  
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sun.net.httpserver.HttpExchange;  
 import com.sun.net.httpserver.HttpHandler;  
 import com.sun.net.httpserver.HttpServer;  
@@ -27,13 +32,11 @@ public class MyHttpServer {
         public void handle(HttpExchange httpExchange) throws IOException {  
             String responseMsg = "ok";   //响应信息  
             InputStream in = httpExchange.getRequestBody(); //获得输入流  
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));  
-            String temp = null;  
             System.out.println("client handle:");  
-            while((temp = reader.readLine()) != null) {  
-            	
-                System.out.println("client request:"+temp);  
-            }  
+            String queryString =  httpExchange.getRequestURI().getQuery();
+            Map<String,String> queryStringInfo = formData2Dic(queryString);
+            responseMsg = responseMsg+" "+queryStringInfo.get("rt");
+            responseMsg = responseMsg+" "+queryStringInfo.get("ie");
             httpExchange.sendResponseHeaders(200, responseMsg.length()); //设置响应头属性及响应信息的长度  
             OutputStream out = httpExchange.getResponseBody();  //获得输出流  
             out.write(responseMsg.getBytes());  
@@ -42,6 +45,26 @@ public class MyHttpServer {
               
         }  
     }  
+    
+    public static Map<String,String> formData2Dic(String formData ) {
+        Map<String,String> result = new HashMap<>();
+        if(formData== null || formData.trim().length() == 0) {
+            return result;
+        }
+        final String[] items = formData.split("&");
+        Arrays.stream(items).forEach(item ->{
+            final String[] keyAndVal = item.split("=");
+            if( keyAndVal.length == 2) {
+                try{
+                    final String key = URLDecoder.decode( keyAndVal[0],"utf8");
+                    final String val = URLDecoder.decode( keyAndVal[1],"utf8");
+                    result.put(key,val);
+                }catch (UnsupportedEncodingException e) {}
+            }
+        });
+        return result;
+    }
+    
     public static void main(String[] args) throws IOException {  
         httpserverService();  
     }  
