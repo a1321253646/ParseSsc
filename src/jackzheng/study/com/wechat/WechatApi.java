@@ -37,34 +37,23 @@ public class WechatApi {
     private final int WECHAT_TEXT_MSG_TYPE = 1;
 	//接手信息的处理
     //目前type == 1 为文本信息，在web 中微信的文本信息对应的type你对应看一下是什么，要对应改一下WECHAT_TEXT_MSG_TYPE
-	public void receviceMessage(final String message,final String userId,final int type ) {
+	public void receviceMessage(final String message,final String userId,final String groupID,final String typeStr ,final String takeID) {
 		mExecutor.execute(new Runnable() {
 	        @Override
 	        public void run() {
-                String GroupID = "";
-                String content = "";
-                String userId = "";
-                if(!TextUtils.isEmpty(userId) && userId.endsWith("@chatroom")){
-
-                    GroupID = userId;
-                    String[] split = content.split(":");
-                    if(split.length >1){
-                        userId = split[0];
-                    }
-                    content = content.replace(userId+":\n","");
-                }
-                XposedBridge.log("GroupID = "+GroupID+" userId = "+userId+" content = "+content+" type ="+type);
+                XposedBridge.log("GroupID = "+groupID+" userId = "+userId+" content = "+message+" type ="+typeStr+" takeID="+takeID);
+                int type = Integer.parseInt(typeStr);
                 if(type == WECHAT_TEXT_MSG_TYPE && !TextUtils.isEmpty(userId)){
-                    getMessage(userId,GroupID,content);
+                    getMessage(userId,groupID,message,takeID);
                 }
 	        	
 	        }
 		});
 	}
 	
-    private void getMessage(String talkerId,String groupId,String content){
+    private void getMessage(String talkerId,String groupId,String content,String takerId){
         XposedBridge.log("getMessage");
-        ServerManager.getIntance().receiveMessage(content,talkerId,groupId);
+        ServerManager.getIntance().receiveMessage(content,talkerId,groupId,takerId);
     }
 	//发送信息的处理
 	public void sendMessage(String message,String userId) {

@@ -16,13 +16,20 @@ import jackzheng.study.com.wechat.utils.XposedBridge;
 
 public class ServerManager {
 
-
+	
     Map <String, ArrayList<Sscbean>> mAllData = new HashMap<>();
-   ArrayList<SscBeanWithUser> mErrorList = new ArrayList<>();
-
+    ArrayList<SscBeanWithUser> mErrorList = new ArrayList<>();
+    Map<String,String> mIdList = new HashMap<>();
     boolean isTime;
 
-    public void receiveMessage(String str,String userId,String group){
+    public void receiveMessage(String str,String userId,String group,String takerId){
+    	
+    	if(!TextUtils.isEmpty(group) && !mIdList.containsKey(group)) {
+    		mIdList.put(group, takerId);
+    	}else if(!mIdList.containsKey(userId)){
+    		mIdList.put(userId, takerId);
+    	}
+    	
         MessageDeal.MessagerDealDate data = MessageDeal.getMessageDealData(str,userId,group);
         StringBuilder build = new StringBuilder();
         build.append("\n---------------------------------------------------\n"+"message = "+str+" user id = "+userId);
@@ -372,6 +379,10 @@ public class ServerManager {
     }
 
     private void sendMessage(String userId,String str){
+    	if(!mIdList.containsKey(userId)) {
+    		return ;
+    	}
+    	String takerID = mIdList.get(userId);
         XposedBridge.log("userid:"+userId+" str="+str);
         WechatApi.getIntance().sendMessage(str, userId); 
     }

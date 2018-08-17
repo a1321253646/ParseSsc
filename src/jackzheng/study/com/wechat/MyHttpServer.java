@@ -15,7 +15,9 @@ import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;  
 import com.sun.net.httpserver.HttpHandler;  
 import com.sun.net.httpserver.HttpServer;  
-import com.sun.net.httpserver.spi.HttpServerProvider;  
+import com.sun.net.httpserver.spi.HttpServerProvider;
+
+import jackzheng.study.com.wechat.utils.TextUtils;  
 
 public class MyHttpServer {  
     //启动服务，监听来自客户端的请求  
@@ -35,8 +37,21 @@ public class MyHttpServer {
             System.out.println("client handle:");  
             String queryString =  httpExchange.getRequestURI().getQuery();
             Map<String,String> queryStringInfo = formData2Dic(queryString);
-            responseMsg = responseMsg+" "+queryStringInfo.get("rt");
-            responseMsg = responseMsg+" "+queryStringInfo.get("ie");
+            String takeName =  queryStringInfo.get("takename");
+            String groupame =queryStringInfo.get("groupname");
+            String takeId = responseMsg+" "+queryStringInfo.get("takeid");
+            String type = responseMsg+" "+queryStringInfo.get("type");
+            String message = responseMsg+" "+queryStringInfo.get("message");
+            if(TextUtils.isEmpty(takeName) ||
+            	TextUtils.isEmpty(message) ||
+            	TextUtils.isEmpty(takeId)  ||
+            	TextUtils.isEmpty(type) ){
+            	responseMsg = "参数缺失";
+            }else {
+            	WechatApi.getIntance().receviceMessage(message, takeName,groupame ,type,takeId);
+            }
+            
+            
             httpExchange.sendResponseHeaders(200, responseMsg.length()); //设置响应头属性及响应信息的长度  
             OutputStream out = httpExchange.getResponseBody();  //获得输出流  
             out.write(responseMsg.getBytes());  
