@@ -23,8 +23,8 @@ public class MyHttpServer {
     //启动服务，监听来自客户端的请求  
     public static void httpserverService() throws IOException {  
         HttpServerProvider provider = HttpServerProvider.provider();  
-        HttpServer httpserver =provider.createHttpServer(new InetSocketAddress(8967), 100);//监听端口6666,能同时接 受100个请求  
-        httpserver.createContext("/myApp", new MyHttpHandler());   
+        HttpServer httpserver =provider.createHttpServer(new InetSocketAddress(8800), 100);//监听端口6666,能同时接 受100个请求  
+        httpserver.createContext("/ssc", new MyHttpHandler());   
         httpserver.setExecutor(null);  
         httpserver.start();  
         System.out.println("server started");  
@@ -37,20 +37,45 @@ public class MyHttpServer {
             System.out.println("client handle:");  
             String queryString =  httpExchange.getRequestURI().getQuery();
             Map<String,String> queryStringInfo = formData2Dic(queryString);
-            String takeName =  queryStringInfo.get("takename");
-            String groupame =queryStringInfo.get("groupname");
-            String takeId = responseMsg+" "+queryStringInfo.get("takeid");
-            String type = responseMsg+" "+queryStringInfo.get("type");
-            String message = responseMsg+" "+queryStringInfo.get("message");
+            String takeName = null;
+            
+            if(queryStringInfo.containsKey("takename")) {
+            	System.out.println("client handle: takename"); 
+            	takeName =  queryStringInfo.get("takename");            
+            }
+            String groupame = null;
+           
+            if(queryStringInfo.containsKey("groupname")) {
+            	 System.out.println("client handle: groupname"); 
+            	groupame =  queryStringInfo.get("groupname");            
+            }
+             
+            String takeId = null;
+            if(queryStringInfo.containsKey("takeid")) {
+            	System.out.println("client handle: takeid");
+            	takeId =  queryStringInfo.get("takeid");            
+            }
+            String type = null;
+           
+            if(queryStringInfo.containsKey("type")) {
+            	 System.out.println("client handle: type"); 
+            	type =  queryStringInfo.get("type");            
+            }
+            String message = null;
+            
+            if(queryStringInfo.containsKey("message")) {
+            	System.out.println("client handle: message"); 
+            	message =  queryStringInfo.get("message");            
+            }
             if(TextUtils.isEmpty(takeName) ||
             	TextUtils.isEmpty(message) ||
             	TextUtils.isEmpty(takeId)  ||
             	TextUtils.isEmpty(type) ){
-            	responseMsg = "参数缺失";
+            	responseMsg = "no ok";
             }else {
             	WechatApi.getIntance().receviceMessage(message, takeName,groupame ,type,takeId);
             }
-            
+            System.out.println("client handle: return responseMsg="+responseMsg);
             
             httpExchange.sendResponseHeaders(200, responseMsg.length()); //设置响应头属性及响应信息的长度  
             OutputStream out = httpExchange.getResponseBody();  //获得输出流  
